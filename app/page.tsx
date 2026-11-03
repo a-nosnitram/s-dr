@@ -10,15 +10,11 @@ const STORAGE_KEY = "nadezhda-achievements-v1";
 const categories: Category[] = ["Личное", "Учёба", "Работа", "Здоровье"];
 const starterAchievements: Achievement[] = [{ id: "first-step", title: "Начало пути", note: "Создан личный журнал достижений.", category: "Личное", date: "2026-11-03" }];
 
-function PixelChest() {
-  return <svg className="pixel-chest" viewBox="0 0 88 72" role="img" aria-label="Пиксельный сундук"><g shapeRendering="crispEdges">
-    <rect x="12" y="16" width="64" height="8" fill="#3b2538"/><rect x="4" y="24" width="80" height="24" fill="#3b2538"/>
-    <rect x="12" y="16" width="56" height="8" fill="#d7894d"/><rect x="12" y="24" width="64" height="16" fill="#b85f44"/>
-    <rect x="12" y="24" width="8" height="8" fill="#efb35c"/><rect x="68" y="24" width="8" height="8" fill="#7e3e42"/>
-    <rect x="4" y="40" width="80" height="8" fill="#efb35c"/><rect x="8" y="48" width="72" height="20" fill="#3b2538"/>
-    <rect x="16" y="48" width="56" height="16" fill="#9d4e43"/><rect x="36" y="36" width="16" height="20" fill="#3b2538"/>
-    <rect x="40" y="40" width="8" height="12" fill="#f7cf6c"/>
-  </g></svg>;
+function PixelHeroAnimation() {
+  return <span className="pixel-hero-animation" role="img" aria-label="Пиксельная Надежда">
+    <img className="pixel-frame pixel-frame-one" src="./assets/nadezhda-1.bmp" alt="" />
+    <img className="pixel-frame pixel-frame-two" src="./assets/nadezhda-2.bmp" alt="" />
+  </span>;
 }
 
 function categoryIcon(category: Category) {
@@ -162,7 +158,7 @@ export default function Home() {
     <div className="stars" aria-hidden="true" />
     <header className="hero">
       <div className="hero-copy"><p className="eyebrow">Личный журнал Надежды Федотовой</p><h1>Мои достижения</h1><p className="subtitle">Каждый маленький шаг — часть большого приключения.</p></div>
-      <div className="hero-trophy"><PixelChest /><span>{achievements.length}</span><small>сокровищ найдено</small></div>
+      <div className="hero-trophy"><PixelHeroAnimation /><span>{achievements.length}</span></div>
     </header>
     <section className="content-grid">
       <AddAchievementForm onAdd={item => setAchievements(current => [item, ...current])} />
