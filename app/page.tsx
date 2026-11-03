@@ -4,40 +4,98 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
 type Category = "Личное" | "Учёба" | "Работа" | "Здоровье";
-type Achievement = { id: string; title: string; note: string; category: Category; date: string };
+type Achievement = {
+  id: string;
+  title: string;
+  note: string;
+  category: Category;
+  date: string;
+};
 
 const STORAGE_KEY = "nadezhda-achievements-v1";
 const categories: Category[] = ["Личное", "Учёба", "Работа", "Здоровье"];
-const starterAchievements: Achievement[] = [{ id: "first-step", title: "Начало пути", note: "Создан личный журнал достижений.", category: "Личное", date: "2026-11-03" }];
+const starterAchievements: Achievement[] = [
+  {
+    id: "first-step",
+    title: "Начало пути",
+    note: "Создан личный журнал достижений.",
+    category: "Личное",
+    date: "2026-11-03",
+  },
+];
 
 function PixelHeroAnimation({ celebrating }: { celebrating: boolean }) {
-  const firstFrame = celebrating ? "./assets/nadezhda-celebrate-1.bmp" : "./assets/nadezhda-1.bmp";
-  const secondFrame = celebrating ? "./assets/nadezhda-celebrate-2.bmp" : "./assets/nadezhda-2.bmp";
+  const firstFrame = celebrating
+    ? "./assets/nadezhda-celebrate-1.bmp"
+    : "./assets/nadezhda-1.bmp";
+  const secondFrame = celebrating
+    ? "./assets/nadezhda-celebrate-2.bmp"
+    : "./assets/nadezhda-2.bmp";
 
-  return <span className={`pixel-hero-animation${celebrating ? " is-celebrating" : ""}`} role="img" aria-label={celebrating ? "Пиксельная Надежда празднует" : "Пиксельная Надежда"}>
-    <img className="pixel-frame pixel-frame-one" src={firstFrame} alt="" />
-    <img className="pixel-frame pixel-frame-two" src={secondFrame} alt="" />
-  </span>;
+  return (
+    <span
+      className={`pixel-hero-animation${celebrating ? " is-celebrating" : ""}`}
+      role="img"
+      aria-label={
+        celebrating ? "Пиксельная Надежда празднует" : "Пиксельная Надежда"
+      }
+    >
+      <img className="pixel-frame pixel-frame-one" src={firstFrame} alt="" />
+      <img className="pixel-frame pixel-frame-two" src={secondFrame} alt="" />
+    </span>
+  );
 }
 
 function PixelIcon({ kind }: { kind: "book" | "briefcase" | "calendar" }) {
-  return <svg className="pixel-icon" viewBox="0 0 16 16" aria-hidden="true" shapeRendering="crispEdges">
-    {kind === "book" && <>
-      <rect x="1" y="3" width="6" height="2" fill="currentColor"/><rect x="1" y="3" width="2" height="10" fill="currentColor"/><rect x="1" y="11" width="6" height="2" fill="currentColor"/>
-      <rect x="9" y="3" width="6" height="2" fill="currentColor"/><rect x="13" y="3" width="2" height="10" fill="currentColor"/><rect x="9" y="11" width="6" height="2" fill="currentColor"/>
-      <rect x="7" y="2" width="2" height="12" fill="currentColor"/><rect x="4" y="6" width="2" height="1" fill="currentColor"/><rect x="10" y="6" width="2" height="1" fill="currentColor"/>
-    </>}
-    {kind === "briefcase" && <>
-      <rect x="5" y="2" width="6" height="2" fill="currentColor"/><rect x="4" y="3" width="2" height="3" fill="currentColor"/><rect x="10" y="3" width="2" height="3" fill="currentColor"/>
-      <rect x="1" y="5" width="14" height="2" fill="currentColor"/><rect x="1" y="5" width="2" height="9" fill="currentColor"/><rect x="13" y="5" width="2" height="9" fill="currentColor"/><rect x="1" y="12" width="14" height="2" fill="currentColor"/>
-      <rect x="2" y="8" width="5" height="2" fill="currentColor"/><rect x="9" y="8" width="5" height="2" fill="currentColor"/><rect x="7" y="8" width="2" height="4" fill="currentColor"/>
-    </>}
-    {kind === "calendar" && <>
-      <rect x="2" y="3" width="12" height="2" fill="currentColor"/><rect x="2" y="3" width="2" height="11" fill="currentColor"/><rect x="12" y="3" width="2" height="11" fill="currentColor"/><rect x="2" y="12" width="12" height="2" fill="currentColor"/>
-      <rect x="4" y="1" width="2" height="5" fill="currentColor"/><rect x="10" y="1" width="2" height="5" fill="currentColor"/><rect x="3" y="6" width="10" height="2" fill="currentColor"/>
-      <rect x="5" y="9" width="2" height="2" fill="currentColor"/><rect x="9" y="9" width="2" height="2" fill="currentColor"/>
-    </>}
-  </svg>;
+  return (
+    <svg
+      className="pixel-icon"
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      shapeRendering="crispEdges"
+    >
+      {kind === "book" && (
+        <>
+          <rect x="1" y="3" width="6" height="2" fill="currentColor" />
+          <rect x="1" y="3" width="2" height="10" fill="currentColor" />
+          <rect x="1" y="11" width="6" height="2" fill="currentColor" />
+          <rect x="9" y="3" width="6" height="2" fill="currentColor" />
+          <rect x="13" y="3" width="2" height="10" fill="currentColor" />
+          <rect x="9" y="11" width="6" height="2" fill="currentColor" />
+          <rect x="7" y="2" width="2" height="12" fill="currentColor" />
+          <rect x="4" y="6" width="2" height="1" fill="currentColor" />
+          <rect x="10" y="6" width="2" height="1" fill="currentColor" />
+        </>
+      )}
+      {kind === "briefcase" && (
+        <>
+          <rect x="5" y="2" width="6" height="2" fill="currentColor" />
+          <rect x="4" y="3" width="2" height="3" fill="currentColor" />
+          <rect x="10" y="3" width="2" height="3" fill="currentColor" />
+          <rect x="1" y="5" width="14" height="2" fill="currentColor" />
+          <rect x="1" y="5" width="2" height="9" fill="currentColor" />
+          <rect x="13" y="5" width="2" height="9" fill="currentColor" />
+          <rect x="1" y="12" width="14" height="2" fill="currentColor" />
+          <rect x="2" y="8" width="5" height="2" fill="currentColor" />
+          <rect x="9" y="8" width="5" height="2" fill="currentColor" />
+          <rect x="7" y="8" width="2" height="4" fill="currentColor" />
+        </>
+      )}
+      {kind === "calendar" && (
+        <>
+          <rect x="2" y="3" width="12" height="2" fill="currentColor" />
+          <rect x="2" y="3" width="2" height="11" fill="currentColor" />
+          <rect x="12" y="3" width="2" height="11" fill="currentColor" />
+          <rect x="2" y="12" width="12" height="2" fill="currentColor" />
+          <rect x="4" y="1" width="2" height="5" fill="currentColor" />
+          <rect x="10" y="1" width="2" height="5" fill="currentColor" />
+          <rect x="3" y="6" width="10" height="2" fill="currentColor" />
+          <rect x="5" y="9" width="2" height="2" fill="currentColor" />
+          <rect x="9" y="9" width="2" height="2" fill="currentColor" />
+        </>
+      )}
+    </svg>
+  );
 }
 
 function categoryIcon(category: Category) {
@@ -47,10 +105,20 @@ function categoryIcon(category: Category) {
 }
 
 function formatDate(date: string) {
-  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${date}T12:00:00`));
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${date}T12:00:00`));
 }
 
-function CategorySelect({ value, onChange }: { value: Category; onChange: (value: Category) => void }) {
+function CategorySelect({
+  value,
+  onChange,
+}: {
+  value: Category;
+  onChange: (value: Category) => void;
+}) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
 
@@ -62,29 +130,75 @@ function CategorySelect({ value, onChange }: { value: Category; onChange: (value
     return () => document.removeEventListener("pointerdown", close);
   }, []);
 
-  return <div className="custom-field" ref={root}>
-    <span className="field-label">Раздел</span>
-    <button className="custom-control select-trigger" type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(current => !current)} onKeyDown={event => { if (event.key === "Escape") setOpen(false); }}>
-      <span className="control-icon">{categoryIcon(value)}</span><span>{value}</span><span className="chevron" aria-hidden="true">▼</span>
-    </button>
-    {open && <div className="dropdown-menu category-menu" role="listbox" aria-label="Раздел достижения">
-      {categories.map(item => <button key={item} type="button" role="option" aria-selected={item === value} className={item === value ? "selected" : ""} onClick={() => { onChange(item); setOpen(false); }}>
-        <span>{categoryIcon(item)}</span>{item}{item === value && <span className="option-check">✓</span>}
-      </button>)}
-    </div>}
-  </div>;
+  return (
+    <div className="custom-field" ref={root}>
+      <span className="field-label">Раздел</span>
+      <button
+        className="custom-control select-trigger"
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") setOpen(false);
+        }}
+      >
+        <span className="control-icon">{categoryIcon(value)}</span>
+        <span>{value}</span>
+        <span className="chevron" aria-hidden="true">
+          ▼
+        </span>
+      </button>
+      {open && (
+        <div
+          className="dropdown-menu category-menu"
+          role="listbox"
+          aria-label="Раздел достижения"
+        >
+          {categories.map((item) => (
+            <button
+              key={item}
+              type="button"
+              role="option"
+              aria-selected={item === value}
+              className={item === value ? "selected" : ""}
+              onClick={() => {
+                onChange(item);
+                setOpen(false);
+              }}
+            >
+              <span>{categoryIcon(item)}</span>
+              {item}
+              {item === value && <span className="option-check">✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-function PixelDatePicker({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+function PixelDatePicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
   const selected = new Date(`${value}T12:00:00`);
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState(() => new Date(selected.getFullYear(), selected.getMonth(), 1));
+  const [view, setView] = useState(
+    () => new Date(selected.getFullYear(), selected.getMonth(), 1),
+  );
   const root = useRef<HTMLDivElement>(null);
   const year = view.getFullYear();
   const month = view.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const leadingDays = (new Date(year, month, 1).getDay() + 6) % 7;
-  const monthTitle = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(view);
+  const monthTitle = new Intl.DateTimeFormat("ru-RU", {
+    month: "long",
+    year: "numeric",
+  }).format(view);
   const week = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
   useEffect(() => {
@@ -99,27 +213,81 @@ function PixelDatePicker({ value, onChange }: { value: string; onChange: (value:
     return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   }
 
-  return <div className="custom-field date-picker" ref={root}>
-    <span className="field-label">Дата</span>
-    <button className="custom-control date-trigger" type="button" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(current => !current)} onKeyDown={event => { if (event.key === "Escape") setOpen(false); }}>
-      <span className="control-icon"><PixelIcon kind="calendar" /></span><span>{formatDate(value)}</span>
-    </button>
-    {open && <div className="dropdown-menu calendar-popover" role="dialog" aria-label="Выбор даты">
-      <div className="calendar-header">
-        <button type="button" aria-label="Предыдущий месяц" onClick={() => setView(new Date(year, month - 1, 1))}>◀</button>
-        <strong>{monthTitle}</strong>
-        <button type="button" aria-label="Следующий месяц" onClick={() => setView(new Date(year, month + 1, 1))}>▶</button>
-      </div>
-      <div className="calendar-grid calendar-week">{week.map(day => <span key={day}>{day}</span>)}</div>
-      <div className="calendar-grid">
-        {Array.from({ length: leadingDays }, (_, index) => <span key={`empty-${index}`} />)}
-        {Array.from({ length: daysInMonth }, (_, index) => index + 1).map(day => {
-          const dayValue = isoDate(day);
-          return <button key={day} type="button" className={dayValue === value ? "selected-day" : ""} aria-label={formatDate(dayValue)} aria-pressed={dayValue === value} onClick={() => { onChange(dayValue); setOpen(false); }}>{day}</button>;
-        })}
-      </div>
-    </div>}
-  </div>;
+  return (
+    <div className="custom-field date-picker" ref={root}>
+      <span className="field-label">Дата</span>
+      <button
+        className="custom-control date-trigger"
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") setOpen(false);
+        }}
+      >
+        <span className="control-icon">
+          <PixelIcon kind="calendar" />
+        </span>
+        <span>{formatDate(value)}</span>
+      </button>
+      {open && (
+        <div
+          className="dropdown-menu calendar-popover"
+          role="dialog"
+          aria-label="Выбор даты"
+        >
+          <div className="calendar-header">
+            <button
+              type="button"
+              aria-label="Предыдущий месяц"
+              onClick={() => setView(new Date(year, month - 1, 1))}
+            >
+              ◀
+            </button>
+            <strong>{monthTitle}</strong>
+            <button
+              type="button"
+              aria-label="Следующий месяц"
+              onClick={() => setView(new Date(year, month + 1, 1))}
+            >
+              ▶
+            </button>
+          </div>
+          <div className="calendar-grid calendar-week">
+            {week.map((day) => (
+              <span key={day}>{day}</span>
+            ))}
+          </div>
+          <div className="calendar-grid">
+            {Array.from({ length: leadingDays }, (_, index) => (
+              <span key={`empty-${index}`} />
+            ))}
+            {Array.from({ length: daysInMonth }, (_, index) => index + 1).map(
+              (day) => {
+                const dayValue = isoDate(day);
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    className={dayValue === value ? "selected-day" : ""}
+                    aria-label={formatDate(dayValue)}
+                    aria-pressed={dayValue === value}
+                    onClick={() => {
+                      onChange(dayValue);
+                      setOpen(false);
+                    }}
+                  >
+                    {day}
+                  </button>
+                );
+              },
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => void }) {
@@ -138,32 +306,99 @@ function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => void }) {
       titleInput.current?.focus();
       return;
     }
-    onAdd({ id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, title: cleanTitle, note: note.trim(), category, date });
-    setTitle(""); setNote(""); setError("");
+    onAdd({
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      title: cleanTitle,
+      note: note.trim(),
+      category,
+      date,
+    });
+    setTitle("");
+    setNote("");
+    setError("");
   }
 
-  return <form className="quest-form pixel-panel" onSubmit={submit}>
-    <div className="panel-title"><span className="tiny-spark">+</span><h2>Новое достижение</h2></div>
-    <label><span>Что получилось?</span><input ref={titleInput} value={title} onChange={e => { setTitle(e.target.value); if (error) setError(""); }} placeholder="Например: закончила важный проект" maxLength={80} aria-invalid={Boolean(error)} aria-describedby={error ? "title-error" : undefined} /></label>
-    {error && <div className="form-error" id="title-error" role="alert"><span aria-hidden="true">!</span><p>{error}</p></div>}
-    <label><span>Небольшая заметка</span><textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Почему это важно?" maxLength={180} rows={3} /></label>
-    <div className="form-row">
-      <CategorySelect value={category} onChange={setCategory} />
-      <PixelDatePicker value={date} onChange={setDate} />
-    </div>
-    <button className="pixel-button" type="submit">Сохранить достижение</button>
-  </form>;
+  return (
+    <form className="quest-form pixel-panel" onSubmit={submit}>
+      <div className="panel-title">
+        <span className="tiny-spark">+</span>
+        <h2>Новое достижение</h2>
+      </div>
+      <label>
+        <span>Что получилось?</span>
+        <input
+          ref={titleInput}
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            if (error) setError("");
+          }}
+          placeholder="Например: закончила важный проект"
+          maxLength={80}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? "title-error" : undefined}
+        />
+      </label>
+      {error && (
+        <div className="form-error" id="title-error" role="alert">
+          <span aria-hidden="true">!</span>
+          <p>{error}</p>
+        </div>
+      )}
+      <label>
+        <span>Небольшая заметка</span>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Почему это важно?"
+          maxLength={180}
+          rows={3}
+        />
+      </label>
+      <div className="form-row">
+        <CategorySelect value={category} onChange={setCategory} />
+        <PixelDatePicker value={date} onChange={setDate} />
+      </div>
+      <button className="pixel-button" type="submit">
+        Сохранить достижение
+      </button>
+    </form>
+  );
 }
 
-function AchievementCard({ item, onDelete }: { item: Achievement; onDelete: (id: string) => void }) {
-  return <article className="achievement-card">
-    <div className={`rune rune-${item.category.toLowerCase()}`} aria-hidden="true">{categoryIcon(item.category)}</div>
-    <div className="achievement-copy">
-      <div className="achievement-topline"><span className="category">{item.category}</span><time dateTime={item.date}>{formatDate(item.date)}</time></div>
-      <h3>{item.title}</h3>{item.note && <p>{item.note}</p>}
-    </div>
-    <button className="delete-button" onClick={() => onDelete(item.id)} aria-label={`Удалить «${item.title}»`} title="Удалить">×</button>
-  </article>;
+function AchievementCard({
+  item,
+  onDelete,
+}: {
+  item: Achievement;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <article className="achievement-card">
+      <div
+        className={`rune rune-${item.category.toLowerCase()}`}
+        aria-hidden="true"
+      >
+        {categoryIcon(item.category)}
+      </div>
+      <div className="achievement-copy">
+        <div className="achievement-topline">
+          <span className="category">{item.category}</span>
+          <time dateTime={item.date}>{formatDate(item.date)}</time>
+        </div>
+        <h3>{item.title}</h3>
+        {item.note && <p>{item.note}</p>}
+      </div>
+      <button
+        className="delete-button"
+        onClick={() => onDelete(item.id)}
+        aria-label={`Удалить «${item.title}»`}
+        title="Удалить"
+      >
+        ×
+      </button>
+    </article>
+  );
 }
 
 export default function Home() {
@@ -179,57 +414,114 @@ export default function Home() {
 
   useEffect(() => {
     let initialAchievements = starterAchievements;
-    try { const saved = localStorage.getItem(STORAGE_KEY); initialAchievements = saved ? JSON.parse(saved) : starterAchievements; }
-    catch { initialAchievements = starterAchievements; }
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      initialAchievements = saved ? JSON.parse(saved) : starterAchievements;
+    } catch {
+      initialAchievements = starterAchievements;
+    }
     setAchievements(initialAchievements);
     countTarget.current = initialAchievements.length;
     setDisplayedCount(initialAchievements.length);
     setReady(true);
   }, []);
-  useEffect(() => { if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(achievements)); }, [achievements, ready]);
-  useEffect(() => () => {
-    window.clearTimeout(celebrationTimer.current);
-    window.clearTimeout(countUpdateTimer.current);
-  }, []);
+  useEffect(() => {
+    if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(achievements));
+  }, [achievements, ready]);
+  useEffect(
+    () => () => {
+      window.clearTimeout(celebrationTimer.current);
+      window.clearTimeout(countUpdateTimer.current);
+    },
+    [],
+  );
 
   function addAchievement(item: Achievement) {
-    setAchievements(current => [item, ...current]);
+    setAchievements((current) => [item, ...current]);
     countTarget.current += 1;
     setCelebrating(true);
     setCountBuilding(true);
-    setCelebrationRun(current => current + 1);
+    setCelebrationRun((current) => current + 1);
     window.clearTimeout(celebrationTimer.current);
     window.clearTimeout(countUpdateTimer.current);
     countUpdateTimer.current = window.setTimeout(() => {
       setDisplayedCount(countTarget.current);
       setCountBuilding(false);
     }, 550);
-    celebrationTimer.current = window.setTimeout(() => setCelebrating(false), 1350);
+    celebrationTimer.current = window.setTimeout(
+      () => setCelebrating(false),
+      1350,
+    );
   }
 
   function deleteAchievement(id: string) {
-    setAchievements(current => current.filter(entry => entry.id !== id));
+    setAchievements((current) => current.filter((entry) => entry.id !== id));
     countTarget.current = Math.max(0, countTarget.current - 1);
     window.clearTimeout(countUpdateTimer.current);
     setCountBuilding(false);
     setDisplayedCount(countTarget.current);
   }
 
-  const sorted = useMemo(() => [...achievements].sort((a, b) => b.date.localeCompare(a.date)), [achievements]);
+  const sorted = useMemo(
+    () => [...achievements].sort((a, b) => b.date.localeCompare(a.date)),
+    [achievements],
+  );
 
-  return <main className="site-shell">
-    <div className="stars" aria-hidden="true" />
-    <header className="hero">
-      <div className="hero-copy"><p className="eyebrow">Личный журнал Надежды Федотовой</p><h1>Мои достижения</h1><p className="subtitle">Каждый маленький шаг — часть большого приключения.</p></div>
-      <div className="hero-trophy"><PixelHeroAnimation key={celebrationRun} celebrating={celebrating} /><span key={`count-${celebrationRun}`} className={`hero-count${countBuilding ? " is-building" : ""}`} aria-live="polite" aria-atomic="true">{displayedCount}</span></div>
-    </header>
-    <section className="content-grid">
-      <AddAchievementForm onAdd={addAchievement} />
-      <section className="journal pixel-panel" aria-labelledby="journal-title">
-        <div className="panel-title journal-heading"><span className="tiny-spark">★</span><h2 id="journal-title">Книга побед</h2><span className="count-badge">{achievements.length}</span></div>
-        {!ready ? <p className="empty-state">Открываем книгу…</p> : sorted.length ? <div className="achievement-list">{sorted.map(item => <AchievementCard key={item.id} item={item} onDelete={deleteAchievement} />)}</div> : <div className="empty-state"><span aria-hidden="true">✦</span><p>Здесь появится первая победа.</p></div>}
+  return (
+    <main className="site-shell">
+      <div className="stars" aria-hidden="true" />
+      <header className="hero">
+        <div className="hero-copy">
+          <p className="eyebrow">Личный журнал Надежды Федотовой</p>
+          <h1>Мои достижения</h1>
+          <p className="subtitle">
+            Каждый маленький шаг — часть большого приключения.
+          </p>
+        </div>
+        <div className="hero-trophy">
+          <PixelHeroAnimation key={celebrationRun} celebrating={celebrating} />
+          <span
+            key={`count-${celebrationRun}`}
+            className={`hero-count${countBuilding ? " is-building" : ""}`}
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {displayedCount}
+          </span>
+        </div>
+      </header>
+      <section className="content-grid">
+        <AddAchievementForm onAdd={addAchievement} />
+        <section
+          className="journal pixel-panel"
+          aria-labelledby="journal-title"
+        >
+          <div className="panel-title journal-heading">
+            <span className="tiny-spark">★</span>
+            <h2 id="journal-title">Книга побед</h2>
+            <span className="count-badge">{achievements.length}</span>
+          </div>
+          {!ready ? (
+            <p className="empty-state">Открываем книгу…</p>
+          ) : sorted.length ? (
+            <div className="achievement-list">
+              {sorted.map((item) => (
+                <AchievementCard
+                  key={item.id}
+                  item={item}
+                  onDelete={deleteAchievement}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <span aria-hidden="true">✦</span>
+              <p>Здесь появится первая победа.</p>
+            </div>
+          )}
+        </section>
       </section>
-    </section>
-    <footer>Сделано с теплом для Надежды</footer>
-  </main>;
+      <footer>С ДР, Надежданчик &lsaquo;3</footer>
+    </main>
+  );
 }
