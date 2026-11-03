@@ -149,22 +149,48 @@ export default function Home() {
   const [ready, setReady] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
   const [celebrationRun, setCelebrationRun] = useState(0);
+  const [displayedCount, setDisplayedCount] = useState(0);
+  const [countBuilding, setCountBuilding] = useState(false);
   const celebrationTimer = useRef<number | undefined>(undefined);
+  const countUpdateTimer = useRef<number | undefined>(undefined);
+  const countTarget = useRef(0);
 
   useEffect(() => {
-    try { const saved = localStorage.getItem(STORAGE_KEY); setAchievements(saved ? JSON.parse(saved) : starterAchievements); }
-    catch { setAchievements(starterAchievements); }
+    let initialAchievements = starterAchievements;
+    try { const saved = localStorage.getItem(STORAGE_KEY); initialAchievements = saved ? JSON.parse(saved) : starterAchievements; }
+    catch { initialAchievements = starterAchievements; }
+    setAchievements(initialAchievements);
+    countTarget.current = initialAchievements.length;
+    setDisplayedCount(initialAchievements.length);
     setReady(true);
   }, []);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(achievements)); }, [achievements, ready]);
-  useEffect(() => () => window.clearTimeout(celebrationTimer.current), []);
+  useEffect(() => () => {
+    window.clearTimeout(celebrationTimer.current);
+    window.clearTimeout(countUpdateTimer.current);
+  }, []);
 
   function addAchievement(item: Achievement) {
     setAchievements(current => [item, ...current]);
+    countTarget.current += 1;
     setCelebrating(true);
+    setCountBuilding(true);
     setCelebrationRun(current => current + 1);
     window.clearTimeout(celebrationTimer.current);
+    window.clearTimeout(countUpdateTimer.current);
+    countUpdateTimer.current = window.setTimeout(() => {
+      setDisplayedCount(countTarget.current);
+      setCountBuilding(false);
+    }, 550);
     celebrationTimer.current = window.setTimeout(() => setCelebrating(false), 1350);
+  }
+
+  function deleteAchievement(id: string) {
+    setAchievements(current => current.filter(entry => entry.id !== id));
+    countTarget.current = Math.max(0, countTarget.current - 1);
+    window.clearTimeout(countUpdateTimer.current);
+    setCountBuilding(false);
+    setDisplayedCount(countTarget.current);
   }
 
   const sorted = useMemo(() => [...achievements].sort((a, b) => b.date.localeCompare(a.date)), [achievements]);
@@ -173,13 +199,13 @@ export default function Home() {
     <div className="stars" aria-hidden="true" />
     <header className="hero">
       <div className="hero-copy"><p className="eyebrow">Личный журнал Надежды Федотовой</p><h1>Мои достижения</h1><p className="subtitle">Каждый маленький шаг — часть большого приключения.</p></div>
-      <div className="hero-trophy"><PixelHeroAnimation key={celebrationRun} celebrating={celebrating} /><span>{achievements.length}</span></div>
+      <div className="hero-trophy"><PixelHeroAnimation key={celebrationRun} celebrating={celebrating} /><span key={`count-${celebrationRun}`} className={`hero-count${countBuilding ? " is-building" : ""}`} aria-live="polite" aria-atomic="true">{displayedCount}</span></div>
     </header>
     <section className="content-grid">
       <AddAchievementForm onAdd={addAchievement} />
       <section className="journal pixel-panel" aria-labelledby="journal-title">
         <div className="panel-title journal-heading"><span className="tiny-spark">★</span><h2 id="journal-title">Книга побед</h2><span className="count-badge">{achievements.length}</span></div>
-        {!ready ? <p className="empty-state">Открываем книгу…</p> : sorted.length ? <div className="achievement-list">{sorted.map(item => <AchievementCard key={item.id} item={item} onDelete={id => setAchievements(current => current.filter(entry => entry.id !== id))} />)}</div> : <div className="empty-state"><span aria-hidden="true">✦</span><p>Здесь появится первая победа.</p></div>}
+        {!ready ? <p className="empty-state">Открываем книгу…</p> : sorted.length ? <div className="achievement-list">{sorted.map(item => <AchievementCard key={item.id} item={item} onDelete={deleteAchievement} />)}</div> : <div className="empty-state"><span aria-hidden="true">✦</span><p>Здесь появится первая победа.</p></div>}
       </section>
     </section>
     <footer>Сделано с теплом для Надежды</footer>
