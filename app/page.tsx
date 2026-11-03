@@ -333,7 +333,7 @@ function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => void }) {
             setTitle(e.target.value);
             if (error) setError("");
           }}
-          placeholder="Например: закончила важный проект"
+          placeholder="пример: раздуплилась"
           maxLength={80}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? "title-error" : undefined}
@@ -350,7 +350,7 @@ function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => void }) {
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Почему это важно?"
+          placeholder="..."
           maxLength={180}
           rows={3}
         />
@@ -472,11 +472,9 @@ export default function Home() {
       <div className="stars" aria-hidden="true" />
       <header className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Личный журнал Надежды Федотовой</p>
-          <h1>Мои достижения</h1>
-          <p className="subtitle">
-            Каждый маленький шаг — часть большого приключения.
-          </p>
+          <p className="eyebrow">хуй</p>
+          <h1>Достижения</h1>
+          <p className="subtitle">Надежды Федотовой, которая могёт</p>
         </div>
         <div className="hero-trophy">
           <PixelHeroAnimation key={celebrationRun} celebrating={celebrating} />
@@ -498,7 +496,7 @@ export default function Home() {
         >
           <div className="panel-title journal-heading">
             <span className="tiny-spark">★</span>
-            <h2 id="journal-title">Книга побед</h2>
+            <h2 id="journal-title">Список ачивок</h2>
             <span className="count-badge">{achievements.length}</span>
           </div>
           {!ready ? (
