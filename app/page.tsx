@@ -164,7 +164,7 @@ export default function Home() {
     setCelebrating(true);
     setCelebrationRun(current => current + 1);
     window.clearTimeout(celebrationTimer.current);
-    celebrationTimer.current = window.setTimeout(() => setCelebrating(false), 1500);
+    celebrationTimer.current = window.setTimeout(() => setCelebrating(false), 1350);
   }
 
   const sorted = useMemo(() => [...achievements].sort((a, b) => b.date.localeCompare(a.date)), [achievements]);
