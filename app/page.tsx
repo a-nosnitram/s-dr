@@ -20,8 +20,30 @@ function PixelHeroAnimation({ celebrating }: { celebrating: boolean }) {
   </span>;
 }
 
+function PixelIcon({ kind }: { kind: "book" | "briefcase" | "calendar" }) {
+  return <svg className="pixel-icon" viewBox="0 0 16 16" aria-hidden="true" shapeRendering="crispEdges">
+    {kind === "book" && <>
+      <rect x="1" y="3" width="6" height="2" fill="currentColor"/><rect x="1" y="3" width="2" height="10" fill="currentColor"/><rect x="1" y="11" width="6" height="2" fill="currentColor"/>
+      <rect x="9" y="3" width="6" height="2" fill="currentColor"/><rect x="13" y="3" width="2" height="10" fill="currentColor"/><rect x="9" y="11" width="6" height="2" fill="currentColor"/>
+      <rect x="7" y="2" width="2" height="12" fill="currentColor"/><rect x="4" y="6" width="2" height="1" fill="currentColor"/><rect x="10" y="6" width="2" height="1" fill="currentColor"/>
+    </>}
+    {kind === "briefcase" && <>
+      <rect x="5" y="2" width="6" height="2" fill="currentColor"/><rect x="4" y="3" width="2" height="3" fill="currentColor"/><rect x="10" y="3" width="2" height="3" fill="currentColor"/>
+      <rect x="1" y="5" width="14" height="2" fill="currentColor"/><rect x="1" y="5" width="2" height="9" fill="currentColor"/><rect x="13" y="5" width="2" height="9" fill="currentColor"/><rect x="1" y="12" width="14" height="2" fill="currentColor"/>
+      <rect x="2" y="8" width="5" height="2" fill="currentColor"/><rect x="9" y="8" width="5" height="2" fill="currentColor"/><rect x="7" y="8" width="2" height="4" fill="currentColor"/>
+    </>}
+    {kind === "calendar" && <>
+      <rect x="2" y="3" width="12" height="2" fill="currentColor"/><rect x="2" y="3" width="2" height="11" fill="currentColor"/><rect x="12" y="3" width="2" height="11" fill="currentColor"/><rect x="2" y="12" width="12" height="2" fill="currentColor"/>
+      <rect x="4" y="1" width="2" height="5" fill="currentColor"/><rect x="10" y="1" width="2" height="5" fill="currentColor"/><rect x="3" y="6" width="10" height="2" fill="currentColor"/>
+      <rect x="5" y="9" width="2" height="2" fill="currentColor"/><rect x="9" y="9" width="2" height="2" fill="currentColor"/>
+    </>}
+  </svg>;
+}
+
 function categoryIcon(category: Category) {
-  return ({ Личное: "★", Учёба: "◆", Работа: "▰", Здоровье: "+" } as Record<Category, string>)[category];
+  if (category === "Учёба") return <PixelIcon kind="book" />;
+  if (category === "Работа") return <PixelIcon kind="briefcase" />;
+  return category === "Личное" ? "★" : "+";
 }
 
 function formatDate(date: string) {
@@ -80,7 +102,7 @@ function PixelDatePicker({ value, onChange }: { value: string; onChange: (value:
   return <div className="custom-field date-picker" ref={root}>
     <span className="field-label">Дата</span>
     <button className="custom-control date-trigger" type="button" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(current => !current)} onKeyDown={event => { if (event.key === "Escape") setOpen(false); }}>
-      <span className="control-icon">◆</span><span>{formatDate(value)}</span>
+      <span className="control-icon"><PixelIcon kind="calendar" /></span><span>{formatDate(value)}</span>
     </button>
     {open && <div className="dropdown-menu calendar-popover" role="dialog" aria-label="Выбор даты">
       <div className="calendar-header">
