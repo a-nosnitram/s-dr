@@ -10,10 +10,13 @@ const STORAGE_KEY = "nadezhda-achievements-v1";
 const categories: Category[] = ["Личное", "Учёба", "Работа", "Здоровье"];
 const starterAchievements: Achievement[] = [{ id: "first-step", title: "Начало пути", note: "Создан личный журнал достижений.", category: "Личное", date: "2026-11-03" }];
 
-function PixelHeroAnimation() {
-  return <span className="pixel-hero-animation" role="img" aria-label="Пиксельная Надежда">
-    <img className="pixel-frame pixel-frame-one" src="./assets/nadezhda-1.bmp" alt="" />
-    <img className="pixel-frame pixel-frame-two" src="./assets/nadezhda-2.bmp" alt="" />
+function PixelHeroAnimation({ celebrating }: { celebrating: boolean }) {
+  const firstFrame = celebrating ? "./assets/nadezhda-celebrate-1.bmp" : "./assets/nadezhda-1.bmp";
+  const secondFrame = celebrating ? "./assets/nadezhda-celebrate-2.bmp" : "./assets/nadezhda-2.bmp";
+
+  return <span className={`pixel-hero-animation${celebrating ? " is-celebrating" : ""}`} role="img" aria-label={celebrating ? "Пиксельная Надежда празднует" : "Пиксельная Надежда"}>
+    <img className="pixel-frame pixel-frame-one" src={firstFrame} alt="" />
+    <img className="pixel-frame pixel-frame-two" src={secondFrame} alt="" />
   </span>;
 }
 
@@ -144,6 +147,9 @@ function AchievementCard({ item, onDelete }: { item: Achievement; onDelete: (id:
 export default function Home() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [ready, setReady] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
+  const [celebrationRun, setCelebrationRun] = useState(0);
+  const celebrationTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     try { const saved = localStorage.getItem(STORAGE_KEY); setAchievements(saved ? JSON.parse(saved) : starterAchievements); }
@@ -151,6 +157,15 @@ export default function Home() {
     setReady(true);
   }, []);
   useEffect(() => { if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(achievements)); }, [achievements, ready]);
+  useEffect(() => () => window.clearTimeout(celebrationTimer.current), []);
+
+  function addAchievement(item: Achievement) {
+    setAchievements(current => [item, ...current]);
+    setCelebrating(true);
+    setCelebrationRun(current => current + 1);
+    window.clearTimeout(celebrationTimer.current);
+    celebrationTimer.current = window.setTimeout(() => setCelebrating(false), 1500);
+  }
 
   const sorted = useMemo(() => [...achievements].sort((a, b) => b.date.localeCompare(a.date)), [achievements]);
 
@@ -158,10 +173,10 @@ export default function Home() {
     <div className="stars" aria-hidden="true" />
     <header className="hero">
       <div className="hero-copy"><p className="eyebrow">Личный журнал Надежды Федотовой</p><h1>Мои достижения</h1><p className="subtitle">Каждый маленький шаг — часть большого приключения.</p></div>
-      <div className="hero-trophy"><PixelHeroAnimation /><span>{achievements.length}</span></div>
+      <div className="hero-trophy"><PixelHeroAnimation key={celebrationRun} celebrating={celebrating} /><span>{achievements.length}</span></div>
     </header>
     <section className="content-grid">
-      <AddAchievementForm onAdd={item => setAchievements(current => [item, ...current])} />
+      <AddAchievementForm onAdd={addAchievement} />
       <section className="journal pixel-panel" aria-labelledby="journal-title">
         <div className="panel-title journal-heading"><span className="tiny-spark">★</span><h2 id="journal-title">Книга побед</h2><span className="count-badge">{achievements.length}</span></div>
         {!ready ? <p className="empty-state">Открываем книгу…</p> : sorted.length ? <div className="achievement-list">{sorted.map(item => <AchievementCard key={item.id} item={item} onDelete={id => setAchievements(current => current.filter(entry => entry.id !== id))} />)}</div> : <div className="empty-state"><span aria-hidden="true">✦</span><p>Здесь появится первая победа.</p></div>}
