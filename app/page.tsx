@@ -472,7 +472,7 @@ export default function Home() {
       <div className="stars" aria-hidden="true" />
       <header className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">хуй</p>
+          <p className="eyebrow">Великие</p>
           <h1>Достижения</h1>
           <p className="subtitle">Надежды Федотовой, которая могёт</p>
         </div>
