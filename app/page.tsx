@@ -281,7 +281,11 @@ function PixelDatePicker({
   );
 }
 
-function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => Promise<void> }) {
+function AddAchievementForm({
+  onAdd,
+}: {
+  onAdd: (item: Achievement) => Promise<void>;
+}) {
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [category, setCategory] = useState<Category>("Личное");
@@ -424,11 +428,11 @@ function LoginScreen({
       <form className="auth-card pixel-panel" onSubmit={submit}>
         <div className="panel-title">
           <span className="tiny-spark">◆</span>
-          <h1>Вход в журнал</h1>
+          <h1>Вход</h1>
         </div>
-        <p>Введите личный пароль Надежды.</p>
+        <p>Введите один из неологизмов Надежды.</p>
         <label>
-          <span>Пароль</span>
+          <span>Пароле пароле пароле</span>
           <input
             type="password"
             value={password}
@@ -437,9 +441,18 @@ function LoginScreen({
             autoFocus
           />
         </label>
-        {error && <div className="form-error" role="alert"><span>!</span><p>{error}</p></div>}
-        <button className="pixel-button" type="submit" disabled={submitting || !password}>
-          {submitting ? "Проверяем…" : "Открыть журнал"}
+        {error && (
+          <div className="form-error" role="alert">
+            <span>!</span>
+            <p>{error}</p>
+          </div>
+        )}
+        <button
+          className="pixel-button"
+          type="submit"
+          disabled={submitting || !password}
+        >
+          {submitting ? "хммм..." : "ЛЕТ МИ ИННН"}
         </button>
       </form>
     </main>
@@ -450,7 +463,9 @@ export default function Home() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [ready, setReady] = useState(false);
   const [password, setPassword] = useState("");
-  const [authState, setAuthState] = useState<"checking" | "locked" | "ready">("checking");
+  const [authState, setAuthState] = useState<"checking" | "locked" | "ready">(
+    "checking",
+  );
   const [authError, setAuthError] = useState("");
   const [syncError, setSyncError] = useState("");
   const [celebrating, setCelebrating] = useState(false);
@@ -508,8 +523,8 @@ export default function Home() {
       setAuthState("locked");
       setAuthError(
         error instanceof ApiError && error.status === 401
-          ? "Неверный пароль."
-          : "Не удалось подключиться к хранилищу.",
+          ? "Непосвещённый... брысь!"
+          : "Что-то где-то проебалось. Возможно кто-то уже вошёл в систему. Попробуй ещё раз.",
       );
     }
   }
@@ -626,7 +641,11 @@ export default function Home() {
             <h2 id="journal-title">Список ачивок</h2>
             <span className="count-badge">{achievements.length}</span>
           </div>
-          {syncError && <div className="sync-error" role="alert">{syncError}</div>}
+          {syncError && (
+            <div className="sync-error" role="alert">
+              {syncError}
+            </div>
+          )}
           {!ready ? (
             <p className="empty-state">Открываем книгу…</p>
           ) : sorted.length ? (
