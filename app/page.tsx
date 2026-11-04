@@ -412,6 +412,7 @@ function LoginScreen({
   error: string;
 }) {
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent) {
@@ -433,13 +434,29 @@ function LoginScreen({
         <p>Введите один из неологизмов Надежды.</p>
         <label>
           <span>Пароле пароле пароле</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-            autoFocus
-          />
+          <span className="password-field">
+            <input
+              type={passwordVisible ? "text" : "password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              autoCapitalize="none"
+              inputMode="text"
+              lang="ru"
+              spellCheck={false}
+              autoFocus
+            />
+            <button
+              className="password-toggle"
+              type="button"
+              aria-pressed={passwordVisible}
+              aria-label={passwordVisible ? "Скрыть пароль" : "Показать пароль"}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => setPasswordVisible((visible) => !visible)}
+            >
+              {passwordVisible ? "Скрыть" : "Показать"}
+            </button>
+          </span>
         </label>
         {error && (
           <div className="form-error" role="alert">

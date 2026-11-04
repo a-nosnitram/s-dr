@@ -104,6 +104,11 @@ footer { padding-top:36px; color:#bdb3ae; font-size:11px; text-align:center; } f
 .auth-card .panel-title { align-items:flex-start; }
 .auth-card h1 { margin:0; color:var(--ink); font-size:18px; line-height:1.5; text-shadow:none; }
 .auth-card>p { margin-bottom:24px; color:#6d617e; font-size:9px; line-height:1.8; }
+.password-field { position:relative; display:block; color:inherit; font-size:inherit; font-weight:inherit; text-transform:none; }
+.password-field input { padding-right:112px; }
+.password-toggle { position:absolute; top:6px; right:6px; height:31px; padding:0 8px; border:2px solid #352848; color:#f2fffd; background:#60467d; box-shadow:2px 2px 0 #287d7c; font-size:7px; line-height:1; }
+.password-toggle:hover,.password-toggle:focus-visible { outline:2px solid #a8ddd9; background:#287d7c; }
+.password-toggle:active { transform:translate(2px,2px); box-shadow:none; }
 .sync-error { margin-bottom:16px; padding:10px; border:3px solid #513866; color:#f5f2ff; background:#7d5593; box-shadow:3px 3px 0 #2d2842; font-size:8px; line-height:1.6; }
 
 /* Teal and purple theme */
