@@ -459,9 +459,12 @@ export default function Home() {
       setDisplayedCount(countTarget.current);
       setCountBuilding(false);
     }, 550);
+    const celebrationDuration = window.matchMedia("(max-width: 460px)").matches
+      ? 2350
+      : 1350;
     celebrationTimer.current = window.setTimeout(
       () => setCelebrating(false),
-      1350,
+      celebrationDuration,
     );
   }
 
