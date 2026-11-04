@@ -122,7 +122,7 @@ function CategorySelect({
   }, []);
 
   return (
-    <div className="custom-field" ref={root}>
+    <div className={`custom-field${open ? " is-open" : ""}`} ref={root}>
       <span className="field-label">Раздел</span>
       <button
         className="custom-control select-trigger"
@@ -205,7 +205,10 @@ function PixelDatePicker({
   }
 
   return (
-    <div className="custom-field date-picker" ref={root}>
+    <div
+      className={`custom-field date-picker${open ? " is-open" : ""}`}
+      ref={root}
+    >
       <span className="field-label">Дата</span>
       <button
         className="custom-control date-trigger"
