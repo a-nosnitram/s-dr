@@ -28,11 +28,13 @@ yarn-error.log*
 
 # Local environment and keys
 .env*
+!.env.production
 .dev.vars*
 *.pem
 
 # Checkout-local tool state
 /.wrangler/
+/.wrangler-home/
 /.sites-runtime/
 
 # Workspace scaffolding and publication archives
@@ -54,7 +56,6 @@ yarn-error.log*
 /lib/
 /scripts/
 /vendor/
-/worker/
 /app/chatgpt-auth.ts
 /app/layout.tsx
 /cloudflare-env.d.ts

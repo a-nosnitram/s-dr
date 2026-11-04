@@ -2,27 +2,18 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
-
-type Category = "Личное" | "Учёба" | "Работа" | "Здоровье";
-type Achievement = {
-  id: string;
-  title: string;
-  note: string;
-  category: Category;
-  date: string;
-};
+import {
+  ApiError,
+  createAchievement,
+  deleteAchievementRemote,
+  importAchievements,
+  loadAchievements,
+} from "../src/api";
+import type { Achievement, Category } from "../src/api";
 
 const STORAGE_KEY = "nadezhda-achievements-v1";
+const SESSION_KEY = "nadezhda-achievements-password";
 const categories: Category[] = ["Личное", "Учёба", "Работа", "Здоровье"];
-const starterAchievements: Achievement[] = [
-  {
-    id: "first-step",
-    title: "Начало пути",
-    note: "Создан личный журнал достижений.",
-    category: "Личное",
-    date: "2026-11-03",
-  },
-];
 
 function PixelHeroAnimation({ celebrating }: { celebrating: boolean }) {
   const firstFrame = celebrating
@@ -290,15 +281,16 @@ function PixelDatePicker({
   );
 }
 
-function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => void }) {
+function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => Promise<void> }) {
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [category, setCategory] = useState<Category>("Личное");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const titleInput = useRef<HTMLInputElement>(null);
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const cleanTitle = title.trim();
     if (!cleanTitle) {
@@ -306,16 +298,23 @@ function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => void }) {
       titleInput.current?.focus();
       return;
     }
-    onAdd({
-      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      title: cleanTitle,
-      note: note.trim(),
-      category,
-      date,
-    });
-    setTitle("");
-    setNote("");
-    setError("");
+    setSaving(true);
+    try {
+      await onAdd({
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        title: cleanTitle,
+        note: note.trim(),
+        category,
+        date,
+      });
+      setTitle("");
+      setNote("");
+      setError("");
+    } catch {
+      setError("Не удалось сохранить. Попробуй ещё раз.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -359,8 +358,8 @@ function AddAchievementForm({ onAdd }: { onAdd: (item: Achievement) => void }) {
         <CategorySelect value={category} onChange={setCategory} />
         <PixelDatePicker value={date} onChange={setDate} />
       </div>
-      <button className="pixel-button" type="submit">
-        Сохранить достижение
+      <button className="pixel-button" type="submit" disabled={saving}>
+        {saving ? "Сохраняем…" : "Сохранить достижение"}
       </button>
     </form>
   );
@@ -401,9 +400,59 @@ function AchievementCard({
   );
 }
 
+function LoginScreen({
+  onLogin,
+  error,
+}: {
+  onLogin: (password: string) => Promise<void>;
+  error: string;
+}) {
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    if (!password) return;
+    setSubmitting(true);
+    await onLogin(password);
+    setSubmitting(false);
+  }
+
+  return (
+    <main className="site-shell auth-page">
+      <div className="stars" aria-hidden="true" />
+      <form className="auth-card pixel-panel" onSubmit={submit}>
+        <div className="panel-title">
+          <span className="tiny-spark">◆</span>
+          <h1>Вход в журнал</h1>
+        </div>
+        <p>Введите личный пароль Надежды.</p>
+        <label>
+          <span>Пароль</span>
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            autoFocus
+          />
+        </label>
+        {error && <div className="form-error" role="alert"><span>!</span><p>{error}</p></div>}
+        <button className="pixel-button" type="submit" disabled={submitting || !password}>
+          {submitting ? "Проверяем…" : "Открыть журнал"}
+        </button>
+      </form>
+    </main>
+  );
+}
+
 export default function Home() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [ready, setReady] = useState(false);
+  const [password, setPassword] = useState("");
+  const [authState, setAuthState] = useState<"checking" | "locked" | "ready">("checking");
+  const [authError, setAuthError] = useState("");
+  const [syncError, setSyncError] = useState("");
   const [celebrating, setCelebrating] = useState(false);
   const [celebrationRun, setCelebrationRun] = useState(0);
   const [displayedCount, setDisplayedCount] = useState(0);
@@ -415,21 +464,10 @@ export default function Home() {
   const heroTrophy = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let initialAchievements = starterAchievements;
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      initialAchievements = saved ? JSON.parse(saved) : starterAchievements;
-    } catch {
-      initialAchievements = starterAchievements;
-    }
-    setAchievements(initialAchievements);
-    countTarget.current = initialAchievements.length;
-    setDisplayedCount(initialAchievements.length);
-    setReady(true);
+    const savedPassword = sessionStorage.getItem(SESSION_KEY);
+    if (savedPassword) void authenticate(savedPassword);
+    else setAuthState("locked");
   }, []);
-  useEffect(() => {
-    if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(achievements));
-  }, [achievements, ready]);
   useEffect(
     () => () => {
       window.clearTimeout(celebrationTimer.current);
@@ -438,7 +476,47 @@ export default function Home() {
     [],
   );
 
-  function addAchievement(item: Achievement) {
+  async function authenticate(candidate: string) {
+    setAuthState("checking");
+    setAuthError("");
+    try {
+      let remoteAchievements = await loadAchievements(candidate);
+      if (remoteAchievements.length === 0) {
+        let legacyAchievements: Achievement[] = [];
+        try {
+          const legacy = localStorage.getItem(STORAGE_KEY);
+          legacyAchievements = legacy ? JSON.parse(legacy) : [];
+        } catch {
+          legacyAchievements = [];
+        }
+        if (legacyAchievements.length) {
+          await importAchievements(candidate, legacyAchievements);
+          remoteAchievements = await loadAchievements(candidate);
+        }
+      }
+      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.setItem(SESSION_KEY, candidate);
+      setPassword(candidate);
+      setAchievements(remoteAchievements);
+      countTarget.current = remoteAchievements.length;
+      setDisplayedCount(remoteAchievements.length);
+      setReady(true);
+      setAuthState("ready");
+    } catch (error) {
+      sessionStorage.removeItem(SESSION_KEY);
+      setReady(false);
+      setAuthState("locked");
+      setAuthError(
+        error instanceof ApiError && error.status === 401
+          ? "Неверный пароль."
+          : "Не удалось подключиться к хранилищу.",
+      );
+    }
+  }
+
+  async function addAchievement(item: Achievement) {
+    setSyncError("");
+    await createAchievement(password, item);
     const spriteBounds = heroTrophy.current
       ?.querySelector(".pixel-hero-animation")
       ?.getBoundingClientRect();
@@ -468,12 +546,18 @@ export default function Home() {
     );
   }
 
-  function deleteAchievement(id: string) {
-    setAchievements((current) => current.filter((entry) => entry.id !== id));
-    countTarget.current = Math.max(0, countTarget.current - 1);
-    window.clearTimeout(countUpdateTimer.current);
-    setCountBuilding(false);
-    setDisplayedCount(countTarget.current);
+  async function deleteAchievement(id: string) {
+    setSyncError("");
+    try {
+      await deleteAchievementRemote(password, id);
+      setAchievements((current) => current.filter((entry) => entry.id !== id));
+      countTarget.current = Math.max(0, countTarget.current - 1);
+      window.clearTimeout(countUpdateTimer.current);
+      setCountBuilding(false);
+      setDisplayedCount(countTarget.current);
+    } catch {
+      setSyncError("Не удалось удалить запись. Попробуй ещё раз.");
+    }
   }
 
   const sorted = useMemo(
@@ -485,6 +569,10 @@ export default function Home() {
     "--origin-x": `${celebrationOrigin.x}px`,
     "--origin-y": `${celebrationOrigin.y}px`,
   } as CSSProperties;
+
+  if (authState !== "ready") {
+    return <LoginScreen onLogin={authenticate} error={authError} />;
+  }
 
   return (
     <main className={`site-shell${celebrating ? " is-celebrating" : ""}`}>
@@ -538,6 +626,7 @@ export default function Home() {
             <h2 id="journal-title">Список ачивок</h2>
             <span className="count-badge">{achievements.length}</span>
           </div>
+          {syncError && <div className="sync-error" role="alert">{syncError}</div>}
           {!ready ? (
             <p className="empty-state">Открываем книгу…</p>
           ) : sorted.length ? (

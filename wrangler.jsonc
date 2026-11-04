@@ -1,0 +1,22 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "nadezhda-achievements-api",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-11-04",
+	"vars": {
+		"ALLOWED_ORIGIN": "https://a-nosnitram.github.io"
+	},
+	"secrets": {
+		"required": [
+			"APP_PASSWORD"
+		]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "nadya-achievements",
+			"database_id": "63a7fd60-f0ae-435e-b0c5-4651b2f09f4c",
+			"migrations_dir": "worker/migrations"
+		}
+	]
+}
