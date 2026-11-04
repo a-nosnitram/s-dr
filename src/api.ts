@@ -21,7 +21,7 @@ async function apiRequest<T>(password: string, path: string, init?: RequestInit)
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${password}`,
+      Authorization: `Bearer ${encodeURIComponent(password)}`,
       "Content-Type": "application/json",
       ...init?.headers,
     },

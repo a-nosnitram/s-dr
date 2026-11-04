@@ -13,7 +13,7 @@ npm run dev
 
 ```bash
 npm run db:migrate:local
-APP_PASSWORD=ваш-пароль npm run worker:dev
+APP_PASSWORDS='["первый-пароль","второй-пароль"]' npm run worker:dev
 ```
 
 ## Публикация
@@ -29,4 +29,4 @@ npm run db:migrate:remote
 npm run worker:deploy
 ```
 
-Пароль хранится только как Cloudflare secret. Чтобы заменить его, выполните `npx wrangler secret put APP_PASSWORD --config wrangler.jsonc`.
+Допустимые пароли хранятся только как Cloudflare secret в виде JSON-массива. Чтобы заменить их, выполните `npx wrangler secret put APP_PASSWORDS --config wrangler.jsonc`.

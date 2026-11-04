@@ -1,6 +1,6 @@
 interface Env {
   DB: D1Database;
-  APP_PASSWORD: string;
+  APP_PASSWORDS: string;
   ALLOWED_ORIGIN: string;
 }
 
@@ -43,10 +43,26 @@ async function secureEqual(left: string, right: string) {
 }
 
 async function isAuthorized(request: Request, env: Env) {
-  if (!env.APP_PASSWORD) return false;
+  if (!env.APP_PASSWORDS) return false;
   const authorization = request.headers.get("Authorization") ?? "";
-  const supplied = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
-  return secureEqual(supplied, env.APP_PASSWORD);
+  const encoded = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+  let supplied = "";
+  try {
+    supplied = decodeURIComponent(encoded);
+  } catch {
+    return false;
+  }
+  let passwords: unknown;
+  try {
+    passwords = JSON.parse(env.APP_PASSWORDS);
+  } catch {
+    return false;
+  }
+  if (!Array.isArray(passwords) || !passwords.every((password) => typeof password === "string")) {
+    return false;
+  }
+  const matches = await Promise.all(passwords.map((password) => secureEqual(supplied, password)));
+  return matches.some(Boolean);
 }
 
 function validateAchievement(value: unknown): AchievementInput | null {

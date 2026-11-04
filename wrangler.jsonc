@@ -8,7 +8,7 @@
 	},
 	"secrets": {
 		"required": [
-			"APP_PASSWORD"
+			"APP_PASSWORDS"
 		]
 	},
 	"d1_databases": [
