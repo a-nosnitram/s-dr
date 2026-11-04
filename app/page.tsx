@@ -130,7 +130,10 @@ function useFloatingPanel(
       let top = rect.bottom + 5;
       if (panelHeight && top + panelHeight > window.innerHeight - 12) {
         const above = rect.top - panelHeight - 5;
-        top = above >= 12 ? above : Math.max(12, window.innerHeight - panelHeight - 12);
+        top =
+          above >= 12
+            ? above
+            : Math.max(12, window.innerHeight - panelHeight - 12);
       }
       setStyle({
         position: "fixed",
@@ -172,7 +175,8 @@ function CategorySelect({
   useEffect(() => {
     function close(event: PointerEvent) {
       const target = event.target as Node;
-      if (!root.current?.contains(target) && !popup.current?.contains(target)) setOpen(false);
+      if (!root.current?.contains(target) && !popup.current?.contains(target))
+        setOpen(false);
     }
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
@@ -198,34 +202,36 @@ function CategorySelect({
           ▼
         </span>
       </button>
-      {open && typeof document !== "undefined" && createPortal(
-        <div
-          ref={popup}
-          className="dropdown-menu category-menu"
-          role="listbox"
-          aria-label="Раздел достижения"
-          style={popupStyle}
-        >
-          {categories.map((item) => (
-            <button
-              key={item}
-              type="button"
-              role="option"
-              aria-selected={item === value}
-              className={item === value ? "selected" : ""}
-              onClick={() => {
-                onChange(item);
-                setOpen(false);
-              }}
-            >
-              <span>{categoryIcon(item)}</span>
-              {item}
-              {item === value && <span className="option-check">✓</span>}
-            </button>
-          ))}
-        </div>,
-        document.body,
-      )}
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={popup}
+            className="dropdown-menu category-menu"
+            role="listbox"
+            aria-label="Раздел достижения"
+            style={popupStyle}
+          >
+            {categories.map((item) => (
+              <button
+                key={item}
+                type="button"
+                role="option"
+                aria-selected={item === value}
+                className={item === value ? "selected" : ""}
+                onClick={() => {
+                  onChange(item);
+                  setOpen(false);
+                }}
+              >
+                <span>{categoryIcon(item)}</span>
+                {item}
+                {item === value && <span className="option-check">✓</span>}
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -245,7 +251,13 @@ function PixelDatePicker({
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const popup = useRef<HTMLDivElement>(null);
-  const popupStyle = useFloatingPanel(open, trigger, popup, "calendar", "right");
+  const popupStyle = useFloatingPanel(
+    open,
+    trigger,
+    popup,
+    "calendar",
+    "right",
+  );
   const year = view.getFullYear();
   const month = view.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -259,7 +271,8 @@ function PixelDatePicker({
   useEffect(() => {
     function close(event: PointerEvent) {
       const target = event.target as Node;
-      if (!root.current?.contains(target) && !popup.current?.contains(target)) setOpen(false);
+      if (!root.current?.contains(target) && !popup.current?.contains(target))
+        setOpen(false);
     }
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
@@ -291,64 +304,66 @@ function PixelDatePicker({
         </span>
         <span>{formatDate(value)}</span>
       </button>
-      {open && typeof document !== "undefined" && createPortal(
-        <div
-          ref={popup}
-          className="dropdown-menu calendar-popover"
-          role="dialog"
-          aria-label="Выбор даты"
-          style={popupStyle}
-        >
-          <div className="calendar-header">
-            <button
-              type="button"
-              aria-label="Предыдущий месяц"
-              onClick={() => setView(new Date(year, month - 1, 1))}
-            >
-              ◀
-            </button>
-            <strong>{monthTitle}</strong>
-            <button
-              type="button"
-              aria-label="Следующий месяц"
-              onClick={() => setView(new Date(year, month + 1, 1))}
-            >
-              ▶
-            </button>
-          </div>
-          <div className="calendar-grid calendar-week">
-            {week.map((day) => (
-              <span key={day}>{day}</span>
-            ))}
-          </div>
-          <div className="calendar-grid">
-            {Array.from({ length: leadingDays }, (_, index) => (
-              <span key={`empty-${index}`} />
-            ))}
-            {Array.from({ length: daysInMonth }, (_, index) => index + 1).map(
-              (day) => {
-                const dayValue = isoDate(day);
-                return (
-                  <button
-                    key={day}
-                    type="button"
-                    className={dayValue === value ? "selected-day" : ""}
-                    aria-label={formatDate(dayValue)}
-                    aria-pressed={dayValue === value}
-                    onClick={() => {
-                      onChange(dayValue);
-                      setOpen(false);
-                    }}
-                  >
-                    {day}
-                  </button>
-                );
-              },
-            )}
-          </div>
-        </div>,
-        document.body,
-      )}
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={popup}
+            className="dropdown-menu calendar-popover"
+            role="dialog"
+            aria-label="Выбор даты"
+            style={popupStyle}
+          >
+            <div className="calendar-header">
+              <button
+                type="button"
+                aria-label="Предыдущий месяц"
+                onClick={() => setView(new Date(year, month - 1, 1))}
+              >
+                ◀
+              </button>
+              <strong>{monthTitle}</strong>
+              <button
+                type="button"
+                aria-label="Следующий месяц"
+                onClick={() => setView(new Date(year, month + 1, 1))}
+              >
+                ▶
+              </button>
+            </div>
+            <div className="calendar-grid calendar-week">
+              {week.map((day) => (
+                <span key={day}>{day}</span>
+              ))}
+            </div>
+            <div className="calendar-grid">
+              {Array.from({ length: leadingDays }, (_, index) => (
+                <span key={`empty-${index}`} />
+              ))}
+              {Array.from({ length: daysInMonth }, (_, index) => index + 1).map(
+                (day) => {
+                  const dayValue = isoDate(day);
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      className={dayValue === value ? "selected-day" : ""}
+                      aria-label={formatDate(dayValue)}
+                      aria-pressed={dayValue === value}
+                      onClick={() => {
+                        onChange(dayValue);
+                        setOpen(false);
+                      }}
+                    >
+                      {day}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -370,7 +385,7 @@ function AddAchievementForm({
     event.preventDefault();
     const cleanTitle = title.trim();
     if (!cleanTitle) {
-      setError("Сначала назови своё достижение!");
+      setError("стебёшься? ты нихуя не написала, чё сохранять-то?");
       titleInput.current?.focus();
       return;
     }
@@ -435,7 +450,7 @@ function AddAchievementForm({
         <PixelDatePicker value={date} onChange={setDate} />
       </div>
       <button className="pixel-button" type="submit" disabled={saving}>
-        {saving ? "Сохраняем…" : "Сохранить достижение"}
+        {saving ? "Сохраняем…" : "Сохранить"}
       </button>
     </form>
   );
@@ -710,7 +725,7 @@ export default function Home() {
       )}
       <header className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Великие</p>
+          <p className="eyebrow">Великие (и не только)</p>
           <h1>Достижения</h1>
           <p className="subtitle">Надежды Федотовой, которая могёт</p>
         </div>
