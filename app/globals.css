@@ -53,7 +53,9 @@ input[aria-invalid="true"] { border-color:#a95050; box-shadow:inset 3px 3px 0 #e
 .form-error { display:flex; align-items:center; gap:10px; margin:-6px 0 16px; padding:10px; border:3px solid #753f46; color:#fff4d2; background:#a95050; box-shadow:3px 3px 0 #4a3039; animation:error-pop .28s ease-out both; }
 .form-error>span { display:grid; place-items:center; flex:0 0 22px; width:22px; height:22px; color:#753f46; background:var(--gold); font-size:12px; }
 .form-error p { margin:0; font-size:8px; line-height:1.6; }
-.form-row { display:grid; grid-template-columns:1fr 1.25fr; align-items:start; gap:12px; }
+.form-row { position:relative; z-index:2; display:grid; grid-template-columns:1fr 1.25fr; align-items:start; gap:12px; isolation:isolate; }
+.form-row:has([aria-expanded="true"]) { z-index:60; }
+.quest-form:has([aria-expanded="true"])>.pixel-button { pointer-events:none; }
 .custom-field { position:relative; display:grid; align-self:start; align-content:start; gap:7px; min-width:0; height:max-content; margin-bottom:16px; }
 .custom-field:has([aria-expanded="true"]) { z-index:30; }
 .field-label { color:#684653; font-size:11px; font-weight:700; text-transform:uppercase; }
