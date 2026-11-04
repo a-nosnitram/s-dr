@@ -436,7 +436,9 @@ function LoginScreen({
           <span>Пароле пароле пароле</span>
           <span className="password-field">
             <input
-              type={passwordVisible ? "text" : "password"}
+              className={passwordVisible ? "" : "is-masked"}
+              type="text"
+              name="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
@@ -446,6 +448,11 @@ function LoginScreen({
               spellCheck={false}
               autoFocus
             />
+            {!passwordVisible && password && (
+              <span className="password-mask" aria-hidden="true">
+                {Array.from(password, () => "•").join("")}
+              </span>
+            )}
             <button
               className="password-toggle"
               type="button"
