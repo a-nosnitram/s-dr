@@ -53,7 +53,7 @@ input[aria-invalid="true"] { border-color:#a95050; box-shadow:inset 3px 3px 0 #e
 .form-error { display:flex; align-items:center; gap:10px; margin:-6px 0 16px; padding:10px; border:3px solid #753f46; color:#fff4d2; background:#a95050; box-shadow:3px 3px 0 #4a3039; animation:error-pop .28s ease-out both; }
 .form-error>span { display:grid; place-items:center; flex:0 0 22px; width:22px; height:22px; color:#753f46; background:var(--gold); font-size:12px; }
 .form-error p { margin:0; font-size:8px; line-height:1.6; }
-.form-row { position:relative; z-index:2; display:grid; grid-template-columns:1fr 1.25fr; align-items:start; gap:12px; isolation:isolate; }
+.form-row { display:grid; grid-template-columns:1fr 1.25fr; align-items:start; gap:12px; }
 .custom-field { position:relative; display:grid; align-self:start; align-content:start; gap:7px; min-width:0; height:max-content; margin-bottom:16px; }
 .custom-field.is-open { z-index:100; }
 .field-label { color:#684653; font-size:11px; font-weight:700; text-transform:uppercase; }
@@ -64,12 +64,12 @@ input[aria-invalid="true"] { border-color:#a95050; box-shadow:inset 3px 3px 0 #e
 .select-trigger { font-size:8px; }
 .select-trigger .chevron { margin-left:auto; color:#92705b; font-size:8px; }
 .date-trigger { font-size:7px; line-height:1.4; }
-.dropdown-menu { position:absolute; z-index:20; top:calc(100% + 5px); border:3px solid #304439; color:var(--ink); background:#fff1cf; box-shadow:4px 4px 0 #253337,0 0 0 3px #88a06f; animation:dropdown-in .18s ease-out both; }
-.category-menu { left:0; display:grid; width:max(100%,180px); padding:5px; }
+.dropdown-menu { position:fixed; z-index:1000; border:3px solid #304439; color:var(--ink); background:#fff1cf; box-shadow:4px 4px 0 #253337,0 0 0 3px #88a06f; animation:dropdown-in .18s ease-out both; }
+.category-menu { display:grid; padding:5px; }
 .category-menu button { display:grid; grid-template-columns:18px 1fr 18px; align-items:center; gap:5px; min-height:36px; padding:7px; border:0; color:#493b40; background:transparent; font-size:8px; text-align:left; }
 .category-menu button:hover,.category-menu button:focus-visible,.category-menu button.selected { outline:none; color:#fff7d6; background:var(--moss); }
 .option-check { justify-self:end; color:var(--gold); }
-.calendar-popover { right:0; width:286px; padding:10px; }
+.calendar-popover { padding:10px; }
 .calendar-header { display:grid; grid-template-columns:32px 1fr 32px; align-items:center; gap:6px; margin-bottom:10px; }
 .calendar-header strong { font-size:8px; line-height:1.5; text-align:center; text-transform:capitalize; }
 .calendar-header button { display:grid; place-items:center; width:30px; height:30px; padding:0; border:2px solid #304439; color:#fff5d2; background:var(--moss); box-shadow:2px 2px 0 #c49660; font-size:9px; }

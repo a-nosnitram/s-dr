@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
+import { createPortal } from "react-dom";
 import {
   ApiError,
   createAchievement,
@@ -103,6 +104,58 @@ function formatDate(date: string) {
   }).format(new Date(`${date}T12:00:00`));
 }
 
+function useFloatingPanel(
+  open: boolean,
+  trigger: React.RefObject<HTMLButtonElement | null>,
+  popup: React.RefObject<HTMLDivElement | null>,
+  width: "trigger" | "calendar",
+  align: "left" | "right",
+) {
+  const [style, setStyle] = useState<CSSProperties>({ visibility: "hidden" });
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    function updatePosition() {
+      const triggerElement = trigger.current;
+      if (!triggerElement) return;
+      const rect = triggerElement.getBoundingClientRect();
+      const panelWidth =
+        width === "calendar"
+          ? Math.min(286, window.innerWidth - 24)
+          : Math.max(rect.width, 180);
+      const panelHeight = popup.current?.offsetHeight ?? 0;
+      let left = align === "right" ? rect.right - panelWidth : rect.left;
+      left = Math.max(12, Math.min(left, window.innerWidth - panelWidth - 12));
+      let top = rect.bottom + 5;
+      if (panelHeight && top + panelHeight > window.innerHeight - 12) {
+        const above = rect.top - panelHeight - 5;
+        top = above >= 12 ? above : Math.max(12, window.innerHeight - panelHeight - 12);
+      }
+      setStyle({
+        position: "fixed",
+        zIndex: 1000,
+        top,
+        left,
+        width: panelWidth,
+        visibility: "visible",
+      });
+    }
+
+    updatePosition();
+    const frame = window.requestAnimationFrame(updatePosition);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [align, open, popup, trigger, width]);
+
+  return style;
+}
+
 function CategorySelect({
   value,
   onChange,
@@ -112,10 +165,14 @@ function CategorySelect({
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const popup = useRef<HTMLDivElement>(null);
+  const popupStyle = useFloatingPanel(open, trigger, popup, "trigger", "left");
 
   useEffect(() => {
     function close(event: PointerEvent) {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (!root.current?.contains(target) && !popup.current?.contains(target)) setOpen(false);
     }
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
@@ -125,6 +182,7 @@ function CategorySelect({
     <div className={`custom-field${open ? " is-open" : ""}`} ref={root}>
       <span className="field-label">Раздел</span>
       <button
+        ref={trigger}
         className="custom-control select-trigger"
         type="button"
         aria-haspopup="listbox"
@@ -140,11 +198,13 @@ function CategorySelect({
           ▼
         </span>
       </button>
-      {open && (
+      {open && typeof document !== "undefined" && createPortal(
         <div
+          ref={popup}
           className="dropdown-menu category-menu"
           role="listbox"
           aria-label="Раздел достижения"
+          style={popupStyle}
         >
           {categories.map((item) => (
             <button
@@ -163,7 +223,8 @@ function CategorySelect({
               {item === value && <span className="option-check">✓</span>}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -182,6 +243,9 @@ function PixelDatePicker({
     () => new Date(selected.getFullYear(), selected.getMonth(), 1),
   );
   const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const popup = useRef<HTMLDivElement>(null);
+  const popupStyle = useFloatingPanel(open, trigger, popup, "calendar", "right");
   const year = view.getFullYear();
   const month = view.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -194,7 +258,8 @@ function PixelDatePicker({
 
   useEffect(() => {
     function close(event: PointerEvent) {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (!root.current?.contains(target) && !popup.current?.contains(target)) setOpen(false);
     }
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
@@ -211,6 +276,7 @@ function PixelDatePicker({
     >
       <span className="field-label">Дата</span>
       <button
+        ref={trigger}
         className="custom-control date-trigger"
         type="button"
         aria-haspopup="dialog"
@@ -225,11 +291,13 @@ function PixelDatePicker({
         </span>
         <span>{formatDate(value)}</span>
       </button>
-      {open && (
+      {open && typeof document !== "undefined" && createPortal(
         <div
+          ref={popup}
           className="dropdown-menu calendar-popover"
           role="dialog"
           aria-label="Выбор даты"
+          style={popupStyle}
         >
           <div className="calendar-header">
             <button
@@ -278,7 +346,8 @@ function PixelDatePicker({
               },
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
