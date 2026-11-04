@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { CSSProperties, FormEvent } from "react";
 
 type Category = "Личное" | "Учёба" | "Работа" | "Здоровье";
 type Achievement = {
@@ -408,9 +408,11 @@ export default function Home() {
   const [celebrationRun, setCelebrationRun] = useState(0);
   const [displayedCount, setDisplayedCount] = useState(0);
   const [countBuilding, setCountBuilding] = useState(false);
+  const [celebrationOrigin, setCelebrationOrigin] = useState({ x: 0, y: 0 });
   const celebrationTimer = useRef<number | undefined>(undefined);
   const countUpdateTimer = useRef<number | undefined>(undefined);
   const countTarget = useRef(0);
+  const heroTrophy = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let initialAchievements = starterAchievements;
@@ -437,6 +439,15 @@ export default function Home() {
   );
 
   function addAchievement(item: Achievement) {
+    const spriteBounds = heroTrophy.current
+      ?.querySelector(".pixel-hero-animation")
+      ?.getBoundingClientRect();
+    if (spriteBounds) {
+      setCelebrationOrigin({
+        x: spriteBounds.left + spriteBounds.width / 2,
+        y: spriteBounds.top + spriteBounds.height / 2,
+      });
+    }
     setAchievements((current) => [item, ...current]);
     countTarget.current += 1;
     setCelebrating(true);
@@ -467,16 +478,41 @@ export default function Home() {
     [achievements],
   );
 
+  const mobileCelebrationPosition = {
+    "--origin-x": `${celebrationOrigin.x}px`,
+    "--origin-y": `${celebrationOrigin.y}px`,
+  } as CSSProperties;
+
   return (
-    <main className="site-shell">
+    <main className={`site-shell${celebrating ? " is-celebrating" : ""}`}>
       <div className="stars" aria-hidden="true" />
+      {celebrating && (
+        <>
+          <div className="mobile-celebration-dim" aria-hidden="true" />
+          <div
+            className="mobile-celebration"
+            style={mobileCelebrationPosition}
+            aria-hidden="true"
+          >
+            <PixelHeroAnimation celebrating />
+            <span className="mobile-score">
+              <span
+                key={`mobile-count-${celebrationRun}`}
+                className={`hero-count${countBuilding ? " is-building" : ""}`}
+              >
+                {displayedCount}
+              </span>
+            </span>
+          </div>
+        </>
+      )}
       <header className="hero">
         <div className="hero-copy">
           <p className="eyebrow">Великие</p>
           <h1>Достижения</h1>
           <p className="subtitle">Надежды Федотовой, которая могёт</p>
         </div>
-        <div className="hero-trophy">
+        <div className="hero-trophy" ref={heroTrophy}>
           <PixelHeroAnimation key={celebrationRun} celebrating={celebrating} />
           <span
             key={`count-${celebrationRun}`}
